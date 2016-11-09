@@ -22,3 +22,6 @@ _testmain.go
 *.exe
 *.test
 *.prof
+*.swp
+*_gen.go
+go-db-models
