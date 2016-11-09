@@ -32,7 +32,7 @@ func main() {
 	}
 
 
-	logger := New(file, "", time.RFC3339)
+	logger := rateLog.New(file, "", time.RFC3339)
 	logger.SetDuration(time.Millisecond * 100) // 每100毫秒写入一次
 	logger.Println("hello world")
 	logger.Println("hello world2")
@@ -43,5 +43,39 @@ func main() {
 	logger.Println("hello world4")
 }
 ```
+
+## 根据周期自动切割文件
+
+配合`github.com/ibbd-dev/go-rotate-file`，即可实现自动切割文件。
+
+```go
+package main
+
+import (
+	"os"
+	"time"
+
+	"github.com/ibbd-dev/go-rotate-file"
+    "github.com/ibbd-dev/go-rate-log"
+)
+
+func main() {
+	// 最终保存时，文件名如：/tmp/test-rotate.log.161109
+    // 其中后缀161109表示2016-11-09，默认是按照日期对文件进行切割
+	file := rotateFile.Open("/tmp/test-rotate.log")
+	defer file.Close()
+
+	logger := rateLog.New(file, "", time.RFC3339)
+	logger.SetDuration(time.Millisecond * 100) // 每100毫秒写入一次
+	logger.Println("hello world")
+	logger.Println("hello world2")
+	time.Sleep(time.Millisecond * 105)
+	logger.Println("hello world3")
+	logger.Println("hello world3")
+	time.Sleep(time.Millisecond * 10)
+	logger.Println("hello world4")
+}
+```
+
 
 

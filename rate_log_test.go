@@ -4,6 +4,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/ibbd-dev/go-rotate-file"
 )
 
 func TestLog(t *testing.T) {
@@ -14,6 +16,21 @@ func TestLog(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	logger := New(file, "", time.RFC3339)
+	logger.SetDuration(time.Millisecond * 100)
+	logger.Println("hello world")
+	logger.Println("hello world2")
+	time.Sleep(time.Millisecond * 105)
+	logger.Println("hello world3")
+	logger.Println("hello world3")
+	time.Sleep(time.Millisecond * 10)
+	logger.Println("hello world4")
+}
+
+func TestRotateLog(t *testing.T) {
+	file := rotateFile.Open("/tmp/test-rotate-log.log")
+	defer file.Close()
 
 	logger := New(file, "", time.RFC3339)
 	logger.SetDuration(time.Millisecond * 100)
