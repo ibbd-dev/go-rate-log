@@ -16,6 +16,12 @@ func TestLog(t *testing.T) {
 	}
 
 	logger := New(file, "", time.RFC3339)
+	logger.SetDuration(time.Millisecond * 100)
 	logger.Println("hello world")
 	logger.Println("hello world2")
+	time.Sleep(time.Millisecond * 105)
+	logger.Println("hello world3")
+	logger.Println("hello world3")
+	time.Sleep(time.Millisecond * 10)
+	logger.Println("hello world4")
 }

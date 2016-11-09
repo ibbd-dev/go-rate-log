@@ -14,9 +14,9 @@ type RateLogger struct {
 	out    io.Writer  // destination for output
 	buf    []byte     // for accumulating text to write
 
-	timeMu   sync.Mutex
-	duration time.Duration
-	lastTime time.Time
+	timeMu   sync.Mutex    // 保护下面两个属性
+	duration time.Duration // 写log的周期，例如1秒
+	lastTime time.Time     // 最后写log的时间
 }
 
 // New creates a new Logger. The out variable sets the
@@ -42,7 +42,7 @@ type RateLogger struct {
    StampNano  = "Jan _2 15:04:05.000000000"
 */
 func New(out io.Writer, prefix string, flag string) *RateLogger {
-	return &RateLogger{out: out, prefix: prefix, flag: flag}
+	return &RateLogger{out: out, prefix: prefix, flag: flag, duration: time.Second}
 }
 
 func (l *RateLogger) formatHeader(buf *[]byte, t time.Time) {
@@ -58,13 +58,10 @@ func (l *RateLogger) formatHeader(buf *[]byte, t time.Time) {
 }
 
 func (l *RateLogger) Output(s string) error {
-	println("==")
-	fmt.Println(l.lastTime)
 	now := time.Now() // get this early.
 	l.timeMu.Lock()
 	if l.lastTime.Add(l.duration).After(now) {
 		l.timeMu.Unlock()
-		fmt.Println(l.lastTime)
 		return nil
 	}
 	l.lastTime = now
@@ -79,7 +76,6 @@ func (l *RateLogger) Output(s string) error {
 	if len(s) == 0 || s[len(s)-1] != '\n' {
 		l.buf = append(l.buf, '\n')
 	}
-	fmt.Println(string(l.buf))
 	_, err := l.out.Write(l.buf)
 	return err
 }
@@ -97,6 +93,12 @@ func (l *RateLogger) Print(v ...interface{}) { l.Output(fmt.Sprint(v...)) }
 // Println calls l.Output to print to the logger.
 // Arguments are handled in the manner of fmt.Println.
 func (l *RateLogger) Println(v ...interface{}) { l.Output(fmt.Sprintln(v...)) }
+
+func (l *RateLogger) SetDuration(duration time.Duration) {
+	l.timeMu.Lock()
+	defer l.timeMu.Unlock()
+	l.duration = duration
+}
 
 // SetFlags sets the output flags for the logger.
 func (l *RateLogger) SetFlags(flag string) {
