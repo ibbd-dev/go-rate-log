@@ -77,5 +77,32 @@ func main() {
 }
 ```
 
+## 根据错误类型写日志
 
+```go
+package main
+
+import (
+	"time"
+
+	"github.com/ibbd-dev/go-rotate-file"
+    "github.com/ibbd-dev/go-rate-log"
+)
+
+func main() {
+	file := rotateFile.Open("/tmp/test-level-log.log")
+	defer file.Close()
+
+	logger := rateLog.New(file, "", time.RFC3339)
+	logger.SetDuration(time.Millisecond * 100)
+
+	ll := rateLog.NewLevelLog(logger, rateLog.LevelWarn)
+	ll.Debug("Debug")
+	ll.Info("Info")
+	ll.Warn("Warn")
+	ll.Error("Error")
+	time.Sleep(time.Second)
+	ll.Fatal("Fatal")
+}
+```
 

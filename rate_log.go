@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+//
+type ILogger interface {
+	Output(string) error
+}
+
 type RateLogger struct {
 	mu     sync.Mutex // ensures atomic writes; protects the following fields
 	prefix string     // prefix to write at beginning of each line
