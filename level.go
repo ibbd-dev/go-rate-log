@@ -4,6 +4,15 @@ import (
 	"fmt"
 )
 
+// 日志中的前缀标题
+const (
+	titleDebug = "[DEBUG]"
+	titleInfo  = "[INFO]"
+	titleWarn  = "[WARN]"
+	titleError = "[ERROR]"
+	titleFatal = "[FATAL]"
+)
+
 // 日志优先级
 type Priority int
 
@@ -36,28 +45,34 @@ func (l *LevelLog) SetLevel(logLevel Priority) {
 }
 
 func (l *LevelLog) Debug(v ...interface{}) error {
-	return l.Output(LevelDebug, "[DEBEG] "+fmt.Sprintln(v...))
+	return l.output(LevelDebug, titleDebug, v...)
 }
 
 func (l *LevelLog) Info(v ...interface{}) error {
-	return l.Output(LevelInfo, "[DEBEG] "+fmt.Sprintln(v...))
+	return l.output(LevelInfo, titleInfo, v...)
 }
 
 func (l *LevelLog) Warn(v ...interface{}) error {
-	return l.Output(LevelWarn, "[DEBEG] "+fmt.Sprintln(v...))
+	return l.output(LevelWarn, titleWarn, v...)
 }
 
 func (l *LevelLog) Error(v ...interface{}) error {
-	return l.Output(LevelError, "[DEBEG] "+fmt.Sprintln(v...))
+	return l.output(LevelError, titleError, v...)
 }
 
 func (l *LevelLog) Fatal(v ...interface{}) error {
-	return l.Output(LevelFatal, "[DEBEG] "+fmt.Sprintln(v...))
+	return l.output(LevelFatal, titleFatal, v...)
 }
 
-func (l *LevelLog) Output(level Priority, s string) error {
+func (l *LevelLog) Output(s string) error {
+	return l.log.Output(s)
+}
+
+//************************** Private ********************
+
+func (l *LevelLog) output(level Priority, title string, v ...interface{}) error {
 	if level >= l.level {
-		return l.log.Output(s)
+		return l.log.Output(title + " " + fmt.Sprint(v...))
 	}
 	return nil
 }
